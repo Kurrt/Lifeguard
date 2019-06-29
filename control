@@ -1,0 +1,12 @@
+Package: com.kurrt.lifeguard
+Name: Lifeguard
+Depends: mobilesubstrate
+Version: 1.2
+Architecture: iphoneos-arm
+Description: Respring your device using the hardware buttons.
+Homepage: https://kurrt.com/repo/lifeguard
+Depiction: https://kurrt.com/repo/lifeguard
+SileoDepiction: https://kurrt.com/repo/lifeguard/sileo.php
+Maintainer: Kurrt <dev@kurrt.com>
+Author: Kurrt <dev@kurrt.com>
+Section: Tweaks
