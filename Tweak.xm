@@ -23,7 +23,7 @@ static void triggerLifeguard(char button) {
 //iOS 13.4 and up
 %hook SBFluidSwitcherGestureManager
 - (void)grabberTongueBeganPulling:(id)arg1 withDistance:(double)arg2 andVelocity:(double)arg3 andGesture:(id)arg4  {
-		NSLog(@"[BOP] 13.4");
+	//	NSLog(@"[BOP] 13.4");
   	triggerLifeguard('H');
 		%orig;
 }
@@ -34,7 +34,7 @@ static void triggerLifeguard(char button) {
 %hook SBFluidSwitcherGestureManager
 -(void)grabberTongueBeganPulling:(id)arg1 withDistance:(double)arg2 andVelocity:(double)arg3  {
 		triggerLifeguard('H');
-			NSLog(@"[BOP] 13.3");
+		//	NSLog(@"[BOP] 13.3");
 		%orig;
 }
 %end
