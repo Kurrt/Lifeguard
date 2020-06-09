@@ -1,4 +1,8 @@
 #import "Lifeguard.h"
+#define VUP_BUTTON 102
+#define VDOWN_BUTTON 103
+#define POWER_BUTTON 104
+#define HOME_BUTTON 101
 
 static NSString *respringSequence = @"UDUD";
 static NSString *safeModeSequence = @"SSUDUD";
@@ -15,6 +19,27 @@ static void triggerLifeguard(char button) {
 	}
 }
 
+
+//iOS 13.4 and up
+%hook SBFluidSwitcherGestureManager
+- (void)grabberTongueBeganPulling:(id)arg1 withDistance:(double)arg2 andVelocity:(double)arg3 andGesture:(id)arg4  {
+		NSLog(@"[BOP] 13.4");
+  	triggerLifeguard('H');
+		%orig;
+}
+%end
+
+
+//iOS 13.3 and below
+%hook SBFluidSwitcherGestureManager
+-(void)grabberTongueBeganPulling:(id)arg1 withDistance:(double)arg2 andVelocity:(double)arg3  {
+		triggerLifeguard('H');
+			NSLog(@"[BOP] 13.3");
+		%orig;
+}
+%end
+
+
 %hook SpringBoard
 
 -(void)_ringerChanged:(struct __IOHIDEvent *)arg1 {
@@ -22,25 +47,42 @@ static void triggerLifeguard(char button) {
 	%orig;
 }
 
--(_Bool)_handlePhysicalButtonEvent:(UIPressesEvent *)arg1 {
-	int type = arg1.allPresses.allObjects[0].type;
-   	 int force = arg1.allPresses.allObjects[0].force;
         
+-(_Bool)_handlePhysicalButtonEvent:(UIPressesEvent *)arg1 {
 	// type = 101 -> Home button
 	// type = 104 -> Power button
 	// 102 and 103 are volume buttons
 
 	// force = 0 -> button released
 	// force = 1 -> button pressed
-	if (force == 1) {
-		if (type == 103)
-			triggerLifeguard('D');
-		else if (type == 102)
-			triggerLifeguard('U');
-		else if (type == 104)
-			triggerLifeguard('L');
-		else if (type == 101)
-			triggerLifeguard('H');
+
+	int type2 = 0;
+	int type = arg1.allPresses.allObjects[0].type;
+	int force = arg1.allPresses.allObjects[0].force;
+	if ([arg1.allPresses.allObjects count] >= 2){
+		 type2 = arg1.allPresses.allObjects[1].type;
+		 int force2 = arg1.allPresses.allObjects[1].force;
+		 if ((type == VUP_BUTTON && type2 == VDOWN_BUTTON) || ((type == VDOWN_BUTTON) && (type2 == VUP_BUTTON))){
+			 if (force == 1 && force2 == 1){
+				// NSLog(@"[BOP] Volume");
+				 triggerLifeguard('V');
+			}
+			}
+		 if (type+type2 == 207 && force+force2 == 2){
+			 triggerLifeguard('P');
+		}
+	}else {
+		if (force == 1) {
+		//	NSLog(@"[BOP] Single button %i", type);
+				if (type == VDOWN_BUTTON)
+					triggerLifeguard('D');
+				else if (type == VUP_BUTTON)
+					triggerLifeguard('U');
+				else if (type == POWER_BUTTON)
+					triggerLifeguard('L');
+				else if (type == HOME_BUTTON)
+					triggerLifeguard('H');
+			}
 	}
 	return %orig;
 }
@@ -63,9 +105,12 @@ NSTimeInterval lastPress;
 	NSTimeInterval now = [[NSDate date] timeIntervalSince1970] * 1000;
 	if (now - lastPress > 650.0)
 		[sequence setString:@""];
+	if (now - lastPress < 100.0)
+		[sequence deleteCharactersInRange:NSMakeRange([sequence length]-1, 1)];
 	lastPress = now;
 	
 	[sequence appendFormat:@"%c", button];
+	NSLog(@"[BOP] Sequence:%@ Added:%c" , sequence, button);
 	if ([respringSequence length] >= [safeModeSequence length]) {
 		if ([[sequence copy] containsString: respringSequence])
 			[self respring_LG:NO];
@@ -111,4 +156,3 @@ static void loadPrefs() {
     	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)loadPrefs, CFSTR("com.kurrt.lifeguardprefs/settingschanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
     	loadPrefs();
 }
-
