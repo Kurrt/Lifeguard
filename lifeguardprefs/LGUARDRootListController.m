@@ -115,11 +115,11 @@ float cellHeight = 200.0f;
 		_label = [[UILabel alloc] initWithFrame:CGRectMake(16, 16, self.frame.size.width - 32, cellHeight - 48)];
 		[_label setLineBreakMode:NSLineBreakByWordWrapping];
 		[_label setNumberOfLines:0];
-		[_label setText:@"H - Home Button\nL - Lock Button\nU - Volume Up Button\nD - Volume Down Button\nS - Mute Switch\n"];
+		[_label setText:@"H - Home Button\nL - Lock Button\nU - Volume Up Button\nD - Volume Down Button\nS - Mute Switch\nP - Lock Button & Volume Down\nV - Both Volume Buttons Simultaneously\n"];
 		[_label sizeToFit];
 		[self addSubview:_label];
 		[_label release];
-		
+
 		UILabel *_label2 = [[UILabel alloc] initWithFrame:CGRectMake(16, _label.frame.size.height + 16, self.frame.size.width - 32, cellHeight - 48)];
 		[_label2 setLineBreakMode:NSLineBreakByWordWrapping];
 		[_label2 setNumberOfLines:0];
